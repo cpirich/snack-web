@@ -188,6 +188,8 @@ type Props = AuthProps & {
   };
   query: QueryParams;
   userAgent: string;
+  isSaveUrl: boolean;
+  isPublishIpaUrl: boolean;
   isEmbedded?: boolean;
 };
 
@@ -978,6 +980,8 @@ class App extends React.Component<Props, State> {
                 query={this.props.query}
                 wasUpgraded={this.state.wasUpgraded}
                 userAgent={this.props.userAgent}
+                isSaveUrl={this.props.isSaveUrl}
+                isPublishIpaUrl={this.props.isPublishIpaUrl}
               />
             ) : this.props.isEmbedded ? (
               <EmbeddedShell />

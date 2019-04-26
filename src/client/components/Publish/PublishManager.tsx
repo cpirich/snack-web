@@ -3,6 +3,7 @@ import ModalAuthentication from '../Auth/ModalAuthentication';
 import ModalEditTitleAndDescription from '../ModalEditTitleAndDescription';
 import ModalPublishToProfile from './ModalPublishToProfile';
 import ModalSuccessfulPublish from './ModalSuccessfulPublish';
+import ModalPublishIpa from './ModalPublishIpa';
 import ModalPublishUnknownError from './ModalPublishUnknownError';
 import ModalPublishOverwriteError from './ModalPublishOverwriteError';
 import ModalPublishing from './ModalPublishing';
@@ -15,6 +16,7 @@ export type PublishModals =
   | 'publish-prompt-save'
   | 'publish-edit-name'
   | 'publish-success'
+  | 'publish-ipa'
   | 'publish-working'
   | 'publish-unknown-error'
   | 'publish-overwrite-experience-error'
@@ -37,6 +39,9 @@ type Props = AuthProps & {
   creatorUsername: undefined | string;
   snackId: undefined | string;
   sdkVersion: SDKVersion;
+  saveOnInit: boolean;
+  publishIpaOnInit: boolean;
+  loadedEditor: boolean;
   children: (
     options: {
       onPublishAsync: () => Promise<void>;
@@ -111,12 +116,13 @@ class PublishManager extends React.Component<Props, State> {
       this.setState({ hasShownEditNameDialog: true });
     } else {
       if (isLoggedIn) {
+        const { publishIpaOnInit } = this.props;
         // If user is logged in, save the snack to profile
         await this._publishWithOptionsAsync({
           allowedOnProfile: true,
         });
 
-        this.props.onShowModal('publish-success');
+        this.props.onShowModal(publishIpaOnInit ? 'publish-ipa': 'publish-success');
       } else {
         // If user is a guest, publish and prompt to save to profile
         await this._publishWithOptionsAsync({
@@ -134,6 +140,20 @@ class PublishManager extends React.Component<Props, State> {
     // When publish flow ends, we don't need to show any modals
     this.setState({ isPublishInProgress: false });
   };
+
+  componentDidUpdate(prevProps: Props) {
+    // console.log(`PublishManager componentDidUpdate - ${JSON.stringify(this.props, null, 2)}`);
+    const { loadedEditor: prevLoadedEditor } = prevProps;
+    const { saveOnInit, loadedEditor, publishIpaOnInit } = this.props;
+
+    if (saveOnInit && loadedEditor && !prevLoadedEditor) {
+      // For IPA publish, skip the edit name dialog even if not intentionally named
+      this.setState({
+        hasShownEditNameDialog: publishIpaOnInit,
+        isPublishInProgress: true
+      }, this._handleSaveToProfile);
+    }
+  }
 
   render() {
     const { snackId, viewer, name, description, currentModal, children } = this.props;
@@ -169,6 +189,11 @@ class PublishManager extends React.Component<Props, State> {
         />
         <ModalSuccessfulPublish
           visible={isPublishInProgress && currentModal === 'publish-success'}
+          viewer={viewer}
+          onDismiss={this._handlePublishAbort}
+        />
+        <ModalPublishIpa
+          visible={isPublishInProgress && currentModal === 'publish-ipa'}
           viewer={viewer}
           onDismiss={this._handlePublishAbort}
         />

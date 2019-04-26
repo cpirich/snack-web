@@ -129,6 +129,8 @@ export type EditorViewProps = {
   autosaveEnabled: boolean;
   query: QueryParams;
   userAgent: string;
+  isSaveUrl: boolean;
+  isPublishIpaUrl: boolean;
 };
 
 export type Props = PreferencesContextType &
@@ -492,7 +494,7 @@ class EditorView extends React.Component<Props, State> {
     });
 
   render() {
-    const { currentModal, currentBanner, isDownloading, lintErrors } = this.state;
+    const { currentModal, currentBanner, isDownloading, lintErrors, loadedEditor } = this.state;
 
     const {
       channel,
@@ -517,6 +519,8 @@ class EditorView extends React.Component<Props, State> {
       preferences,
       name,
       description,
+      isSaveUrl,
+      isPublishIpaUrl,
     } = this.props;
 
     const annotations: Annotation[] = [];
@@ -541,6 +545,9 @@ class EditorView extends React.Component<Props, State> {
         {this.state.loadedEditor ? null : <ProgressIndicator />}
         <PageMetadata name={metadataName} description={metadataDescription} params={params} />
         <PublishManager
+          saveOnInit={isSaveUrl}
+          publishIpaOnInit={isPublishIpaUrl}
+          loadedEditor={!!loadedEditor}
           snackId={params.id}
           sdkVersion={sdkVersion}
           creatorUsername={this.props.creatorUsername}

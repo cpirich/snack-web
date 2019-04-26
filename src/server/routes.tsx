@@ -146,6 +146,12 @@ export default function routes() {
   router.get('/embedded/@:username/:projectName+', render);
   router.get('/embedded/:id', render);
   router.get('/embedded', render);
+  router.get('/publishipa/@:username/:projectName+', render);
+  router.get('/publishipa/:id', render);
+  router.get('/publishipa', render);
+  router.get('/save/@:username/:projectName+', render);
+  router.get('/save/:id', render);
+  router.get('/save', render);
   router.get('/@:username/:projectName+', render);
   router.get('/:id', render);
   router.get('*', render);

@@ -25,6 +25,8 @@ export default class Router extends React.Component<Props> {
   _renderRoute = (props: any) => {
     const { data, ...rest } = this.props;
     const isEmbedded = props.location.pathname.split('/')[1] === 'embedded';
+    const isPublishIpaUrl = props.location.pathname.split('/')[1] === 'publishipa';
+    const isSaveUrl = isPublishIpaUrl || props.location.pathname.split('/')[1] === 'save';
 
     if (data && data.type === 'success') {
       if (isEmbedded) {
@@ -38,7 +40,7 @@ export default class Router extends React.Component<Props> {
         );
       }
 
-      return <App {...props} {...rest} query={parse(props.location.search)} snack={data.snack} />;
+      return <App {...props} isSaveUrl={isSaveUrl} isPublishIpaUrl={isPublishIpaUrl} {...rest} query={parse(props.location.search)} snack={data.snack} />;
     } else {
       return <NonExistent />;
     }
@@ -50,6 +52,12 @@ export default class Router extends React.Component<Props> {
         <Route exact path="/embedded/@:username/:projectName+" render={this._renderRoute} />
         <Route exact path="/embedded/:id" render={this._renderRoute} />
         <Route exact path="/embedded" render={this._renderRoute} />
+        <Route exact path="/publishipa/@:username/:projectName+" render={this._renderRoute} />
+        <Route exact path="/publishipa/:id" render={this._renderRoute} />
+        <Route exact path="/publishipa" render={this._renderRoute} />
+        <Route exact path="/save/@:username/:projectName+" render={this._renderRoute} />
+        <Route exact path="/save/:id" render={this._renderRoute} />
+        <Route exact path="/save" render={this._renderRoute} />
         <Route exact path="/@:username/:projectName+" render={this._renderRoute} />
         <Route exact path="/:id" render={this._renderRoute} />
         <Route exact path="/" render={this._renderRoute} />
