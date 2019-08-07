@@ -6,10 +6,11 @@ import { isMobile } from '../../utils/detectPlatform';
 import { ConnectionMethod } from '../DeviceInstructions/DeviceInstructionsModal';
 import { PreferencesContextType } from './withPreferences';
 import { ThemeName } from './withThemeName';
+import { Platform } from '../../types';
 
 export type PreferencesType = {
   deviceConnectionMethod: ConnectionMethod;
-  devicePreviewPlatform: 'android' | 'ios';
+  devicePreviewPlatform: Platform;
   devicePreviewShown: boolean;
   editorMode: 'normal' | 'vim';
   fileTreeShown: boolean;
@@ -27,7 +28,7 @@ type Props = {
     set?: (key: string, value: string) => void;
   };
   testConnectionMethod?: ConnectionMethod;
-  testPreviewPlatform?: 'android' | 'ios';
+  testPreviewPlatform?: Platform;
   children: React.ReactNode;
 };
 
@@ -39,7 +40,7 @@ const EDITOR_CONFIG_KEY = 'snack-editor-config';
 
 const defaults: PreferencesType = {
   deviceConnectionMethod: 'device-id',
-  devicePreviewPlatform: 'android',
+  devicePreviewPlatform: 'web',
   devicePreviewShown: true,
   editorMode: 'normal',
   fileTreeShown: !isMobile(),
@@ -61,6 +62,7 @@ class PreferencesProvider extends React.Component<Props, State> {
     try {
       // Restore editor preferences from saved data
       overrides = JSON.parse(cookies.get(EDITOR_CONFIG_KEY) || '') || {};
+      overrides.devicePreviewPlatform = undefined;
     } catch (e) {
       // Ignore error
     }
@@ -134,6 +136,5 @@ class PreferencesProvider extends React.Component<Props, State> {
 }
 
 export default connect((state: any) => ({
-  testPreviewPlatform: state.splitTestSettings.defaultPreviewPlatform,
   testConnectionMethod: state.splitTestSettings.defaultConnectionMethod,
 }))(PreferencesProvider);

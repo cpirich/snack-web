@@ -6,7 +6,10 @@ import Button from './shared/Button';
 import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import colors from '../configs/colors';
+import { SDKVersion } from '../configs/sdk';
 import withThemeName, { ThemeName } from './Preferences/withThemeName';
+import { Platform } from '../types';
+import FeatureFlags from '../utils/FeatureFlags';
 
 const handleClick = (e: any) => e.target.select();
 
@@ -14,11 +17,12 @@ type Props = {
   params?: {
     id?: string;
   };
+  sdkVersion: SDKVersion;
   theme: ThemeName;
 };
 
 type State = {
-  platform: 'ios' | 'android';
+  platform: Platform;
   preview: boolean;
   theme: 'light' | 'dark';
   copied: boolean;
@@ -29,7 +33,7 @@ class EmbedCode extends React.PureComponent<Props, State> {
     super(props);
 
     this.state = {
-      platform: 'ios',
+      platform: FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion) ? 'web' : 'android',
       preview: true,
       theme: this.props.theme || 'light',
       copied: false,
@@ -95,7 +99,7 @@ class EmbedCode extends React.PureComponent<Props, State> {
       theme: state.theme === 'light' ? 'dark' : 'light',
     }));
 
-  _handleChangePlatform = (platform: 'ios' | 'android') => this.setState({ platform });
+  _handleChangePlatform = (platform: Platform) => this.setState({ platform });
 
   render() {
     const { platform, preview, theme, copied } = this.state;
@@ -118,10 +122,17 @@ class EmbedCode extends React.PureComponent<Props, State> {
           <h3 className={css(styles.header)}>Embed Preview</h3>
           <div className={css(styles.row, styles.options)}>
             <ToggleButtons
-              options={[{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]}
+              options={
+                FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)
+                  ? [
+                      { label: 'iOS', value: 'ios' },
+                      { label: 'Android', value: 'android' },
+                      { label: 'Web', value: 'web' },
+                    ]
+                  : [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
+              }
               value={platform}
               onValueChange={this._handleChangePlatform}
-              label="Platform"
               className={css(styles.last)}
             />
             <ToggleSwitch
@@ -171,7 +182,7 @@ const styles = StyleSheet.create({
   },
   options: {
     color: '#999',
-    margin: '0 0 .5em -1em',
+    marginBottom: '.5em',
   },
   last: {
     marginRight: 0,

@@ -16,7 +16,7 @@ import DeviceInstructionsModal, {
   ConnectionMethod,
 } from './DeviceInstructions/DeviceInstructionsModal';
 import EmbedCode from './EmbedCode';
-import DevicePreview from './DevicePreview';
+import DevicePreview from './DevicePreview/DevicePreview';
 import EditorToolbar from './EditorToolbar';
 import EditorPanels from './EditorPanels';
 import EditorFooter from './EditorFooter';
@@ -48,6 +48,7 @@ import {
   SaveHistory,
   Snack,
   QueryParams,
+  Platform,
 } from '../types';
 import { isMobile } from '../utils/detectPlatform';
 import { EditorProps } from './Editor/EditorProps';
@@ -60,7 +61,7 @@ const DEFAULT_METADATA_DESCRIPTION_SAVED = `Try this project on your phone! Use 
 type Device = {
   name: string;
   id: string;
-  platform: string;
+  platform: Platform;
 };
 
 type DeviceLog = {
@@ -86,7 +87,7 @@ export type EditorViewProps = {
   };
   params: {
     id?: string;
-    platform?: 'android' | 'ios';
+    platform?: Platform;
   };
   channel: string;
   isResolving: boolean;
@@ -470,7 +471,7 @@ class EditorView extends React.Component<Props, State> {
       editorMode: this.props.preferences.editorMode === 'vim' ? 'normal' : 'vim',
     });
 
-  _changeDevicePreviewPlatform = (platform: 'ios' | 'android') =>
+  _changeDevicePreviewPlatform = (platform: Platform) =>
     this.props.setPreferences({
       devicePreviewPlatform: platform,
     });
@@ -831,7 +832,7 @@ class EditorView extends React.Component<Props, State> {
                   autoSize={false}
                   visible={currentModal === 'embed'}
                   onDismiss={this._handleHideModal}>
-                  <EmbedCode params={params} />
+                  <EmbedCode params={params} sdkVersion={this.props.sdkVersion} />
                 </ModalDialog>
                 <ModalDialog
                   visible={currentModal === 'previous-saves'}

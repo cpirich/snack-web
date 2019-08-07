@@ -34,6 +34,7 @@ import {
   SaveStatus,
   SaveHistory,
   Device,
+  Platform,
 } from '../types';
 import { DEFAULT_DESCRIPTION } from '../configs/defaults';
 
@@ -41,11 +42,11 @@ const Auth = new AuthManager();
 
 const DEVICE_ID_KEY = '__SNACK_DEVICE_ID';
 
-const INITIAL_CODE: ExpoSnackFiles = {
+const INITIAL_CODE = {
   'App.js': {
     contents: `import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { Constants } from 'expo';
+import Constants from 'expo-constants';
 
 // You can import from local files
 import AssetExample from './components/AssetExample';
@@ -149,7 +150,7 @@ Snack is Open Source. You can find the code on the [GitHub repo](https://github.
 };
 
 const INITIAL_DEPENDENCIES = {
-  'react-native-paper': { version: '2.2.8', isUserSpecified: true },
+  'react-native-paper': { version: '2.16.0', isUserSpecified: true },
 };
 
 const BROADCAST_CHANNEL_NAME = 'SNACK_BROADCAST_CHANNEL';
@@ -169,7 +170,7 @@ type DeviceLog = {
 
 type Params = {
   id?: string;
-  platform?: 'android' | 'ios';
+  platform?: Platform;
   sdkVersion?: SDKVersion;
   username?: string;
   projectName?: string;
@@ -277,14 +278,14 @@ class App extends React.Component<Props, State> {
       (props.query && props.query.code)
     );
 
-    let code: ExpoSnackFiles | string =
-      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE;
-
     let name = getSnackName();
     let description = DEFAULT_DESCRIPTION;
     // TODO(satya164): is this correct? we don't match for sdkVersion in the router
     let sdkVersion = props.match.params.sdkVersion || DEFAULT_SDK_VERSION;
     let dependencies = usingDefaultCode ? INITIAL_DEPENDENCIES : {};
+
+    let code: ExpoSnackFiles | string =
+      props.snack && props.snack.code ? props.snack.code : INITIAL_CODE;
 
     if (props.snack && props.snack.dependencies) {
       dependencies = props.snack.dependencies;

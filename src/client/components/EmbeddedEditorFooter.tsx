@@ -4,14 +4,18 @@ import ToggleSwitch from './shared/ToggleSwitch';
 import ToggleButtons from './shared/ToggleButtons';
 import LoadingText from './shared/LoadingText';
 import EmbeddedFooterShell from './Shell/EmbeddedFooterShell';
+import { Platform } from '../types';
+import { SDKVersion } from '../configs/sdk';
+import FeatureFlags from '../utils/FeatureFlags';
 
 type Props = {
   isResolving: boolean;
   loadingMessage: string | undefined;
   devicePreviewShown: boolean;
-  devicePreviewPlatform: 'android' | 'ios';
+  devicePreviewPlatform: Platform;
+  sdkVersion: SDKVersion
   onToggleDevicePreview: () => void;
-  onChangeDevicePreviewPlatform: (platform: 'android' | 'ios') => void;
+  onChangeDevicePreviewPlatform: (platform: Platform) => void;
 };
 
 export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
@@ -21,10 +25,15 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
       loadingMessage,
       devicePreviewShown,
       devicePreviewPlatform,
+      sdkVersion,
       onToggleDevicePreview,
       onChangeDevicePreviewPlatform,
     } = this.props;
 
+    const platform =
+      devicePreviewPlatform === 'web' && !FeatureFlags.isAvailable('PLATFORM_WEB', sdkVersion)
+        ? 'android'
+        : devicePreviewPlatform;
     return (
       <EmbeddedFooterShell type={isResolving ? 'loading' : undefined}>
         <div>{isResolving ? <LoadingText>{loadingMessage}</LoadingText> : null}</div>
@@ -36,10 +45,18 @@ export default class EmbeddedEditorFooter extends React.PureComponent<Props> {
           />
           <ToggleButtons
             disabled={!devicePreviewShown}
-            options={[{ label: 'Android', value: 'android' }, { label: 'iOS', value: 'ios' }]}
-            value={devicePreviewPlatform}
+            options={
+              FeatureFlags.isAvailable('PLATFORM_WEB', this.props.sdkVersion)
+                ? [
+                    { label: 'iOS', value: 'ios' },
+                    { label: 'Android', value: 'android' },
+                    { label: 'Web', value: 'web' },
+                  ]
+               :
+                 [{ label: 'iOS', value: 'ios' }, { label: 'Android', value: 'android' }]
+            }
+            value={platform}
             onValueChange={onChangeDevicePreviewPlatform}
-            label="Platform"
           />
         </div>
       </EmbeddedFooterShell>
