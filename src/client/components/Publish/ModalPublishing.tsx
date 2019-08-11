@@ -7,6 +7,7 @@ import ModalDialog from '../shared/ModalDialog';
 type Props = {
   visible: boolean;
   onDismiss: () => void;
+  title?: string;
   theme: ThemeName;
 };
 
@@ -16,7 +17,7 @@ class ModalPublishing extends React.Component<Props> {
       <ModalDialog
         visible={this.props.visible}
         onDismiss={this.props.onDismiss}
-        title="Saving Snack…">
+        title={this.props.title || "Saving Snack…"}>
         <div className={css(styles.content)}>
           <Spinner />
         </div>
